@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тест по истории — 50 вопросов</title>
+<style>
+  :root{
+    --bg:#0f1420; --card:#1a2233; --card2:#222d45; --text:#e8ecf4;
+    --muted:#9aa7bd; --accent:#4f8cff; --green:#3ecf8e; --red:#ff6b6b; --yellow:#ffd166;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:20px}
+  .wrap{max-width:860px;margin:0 auto}
+  header{text-align:center;margin-bottom:24px}
+  header h1{font-size:1.7rem;margin-bottom:6px}
+  header p{color:var(--muted)}
+  .card{background:var(--card);border-radius:14px;padding:24px;margin-bottom:16px;box-shadow:0 4px 18px rgba(0,0,0,.35)}
+  .hidden{display:none !important}
+  .btn{display:inline-block;border:none;cursor:pointer;font-size:1rem;font-weight:600;
+       padding:13px 28px;border-radius:10px;color:#fff;background:var(--accent);transition:.15s}
+  .btn:hover{filter:brightness(1.12)}
+  .btn.ghost{background:var(--card2);border:1px solid #33405c}
+  .btn.green{background:var(--green);color:#0b2b1d}
+  .center{text-align:center}
+  .qnum{color:var(--muted);font-size:.9rem;margin-bottom:8px}
+  .question{font-size:1.15rem;font-weight:600;margin-bottom:18px;line-height:1.5}
+  .opt{display:block;width:100%;text-align:left;margin-bottom:10px;padding:13px 16px;border-radius:10px;
+       border:1px solid #33405c;background:var(--card2);color:var(--text);font-size:1rem;cursor:pointer;transition:.12s}
+  .opt:hover{border-color:var(--accent);background:#273453}
+  .opt.selected{border-color:var(--accent);background:#2b3c66}
+  .opt.correct{border-color:var(--green);background:rgba(62,207,142,.15)}
+  .opt.wrong{border-color:var(--red);background:rgba(255,107,107,.13)}
+  .bar{height:8px;background:var(--card2);border-radius:99px;overflow:hidden;margin-bottom:20px}
+  .bar>div{height:100%;background:var(--accent);width:0;transition:.3s}
+  .rowbtns{display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap;margin-top:18px}
+  .score-big{font-size:3rem;font-weight:800}
+  .badge{display:inline-block;padding:6px 16px;border-radius:99px;font-weight:700;margin:8px 4px}
+  .badge.g{background:rgba(62,207,142,.15);color:var(--green);border:1px solid var(--green)}
+  .badge.r{background:rgba(255,107,107,.13);color:var(--red);border:1px solid var(--red)}
+  .res-item{border-radius:10px;padding:14px 16px;margin-bottom:12px;background:var(--card2);border-left:4px solid var(--muted)}
+  .res-item.ok{border-left-color:var(--green)}
+  .res-item.no{border-left-color:var(--red)}
+  .res-q{font-weight:600;margin-bottom:8px;line-height:1.45}
+  .res-line{font-size:.93rem;margin:3px 0;color:var(--muted)}
+  .res-line b{color:var(--text)}
+  .res-line .ok{color:var(--green)} .res-line .no{color:var(--red)}
+  .filterbtns{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .ansblock{background:var(--card);border-radius:14px;padding:18px;margin-bottom:14px;border-left:4px solid var(--accent)}
+  .ansblock .q{font-weight:600;margin-bottom:8px;line-height:1.45}
+  .ansblock .a{color:var(--green);font-weight:600}
+  .tag{display:inline-block;font-size:.75rem;color:var(--muted);border:1px solid #33405c;border-radius:6px;padding:2px 8px;margin-bottom:8px;margin-right:6px}
+  .small{color:var(--muted);font-size:.9rem;margin-top:10px}
+  a.backlink{color:var(--accent);text-decoration:none;cursor:pointer;display:inline-block;margin-bottom:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>📚 Контрольная по истории</h1>
+    <p>История России: начало XX века — 1941 г. · 50 вопросов · 2 варианта</p>
+  </header>
+
+  <!-- ГЛАВНОЕ МЕНЮ -->
+  <div id="menu" class="card center">
+    <h2 style="margin-bottom:12px">Готов начать?</h2>
+    <p class="small" style="margin-bottom:22px">Вопросы и варианты ответов перемешиваются при каждом запуске.<br>В конце — разбор каждого вопроса и твой результат.</p>
+    <button class="btn green" onclick="startTest()">▶ Начать тест</button><br><br>
+    <button class="btn ghost" onclick="showAnswers()">📖 Все вопросы и правильные ответы</button>
+  </div>
+
+  <!-- ТЕСТ -->
+  <div id="test" class="hidden">
+    <div class="card">
+      <div class="qnum" id="qnum"></div>
+      <div class="bar"><div id="barfill"></div></div>
+      <div class="question" id="qtext"></div>
+      <div id="opts"></div>
+      <div class="rowbtns">
+        <button class="btn ghost" id="backBtn" onclick="prevQ()">← Назад</button>
+        <button class="btn" id="nextBtn" onclick="nextQ()">Далее →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- РЕЗУЛЬТАТ -->
+  <div id="result" class="hidden">
+    <div class="card center">
+      <h2 style="margin-bottom:10px">Твой результат</h2>
+      <div class="score-big" id="scoreNum"></div>
+      <div id="scorePct" style="color:var(--muted);margin-bottom:4px"></div>
+      <div id="grade"></div>
+      <div style="margin-top:18px">
+        <span class="badge g" id="okCount"></span>
+        <span class="badge r" id="noCount"></span>
+      </div>
+      <div class="rowbtns" style="justify-content:center;margin-top:22px">
+        <button class="btn green" onclick="startTest()">🔄 Пройти ещё раз</button>
+        <button class="btn ghost" onclick="showAnswers()">📖 Все вопросы и ответы</button>
+        <button class="btn ghost" onclick="goMenu()">🏠 В меню</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:14px">Разбор вопросов</h3>
+      <div class="filterbtns">
+        <button class="btn ghost" style="padding:8px 16px;font-size:.9rem" onclick="renderReview('all')">Все</button>
+        <button class="btn ghost" style="padding:8px 16px;font-size:.9rem" onclick="renderReview('ok')">✅ Правильные</button>
+        <button class="btn ghost" style="padding:8px 16px;font-size:.9rem" onclick="renderReview('no')">❌ Ошибки</button>
+      </div>
+      <div id="reviewList"></div>
+    </div>
+  </div>
+
+  <!-- СПИСОК ВОПРОСОВ С ОТВЕТАМИ -->
+  <div id="answers" class="hidden">
+    <a class="backlink" onclick="goMenu()">← Назад в меню</a>
+    <div id="answersList"></div>
+  </div>
+
+</div>
+
+<script>
+const QUESTIONS = [["Кто провёл денежную реформу (введение золотого рубля) в 1897 году?", ["П. А. Столыпин", "С. Ю. Витте", "И. А. Вышнеградский", "В. К. Плеве"], 1], ["Кто был лидером партии эсеров?", ["В. И. Ленин", "П. Н. Милюков", "В. М. Чернов", "А. И. Гучков"], 2], ["Кто возглавил Временное правительство после Февральской революции 1917 года (первый состав)?", ["Г. Е. Львов", "А. Ф. Керенский", "П. Н. Милюков", "Л. Г. Корнилов"], 0], ["Кто был главным оппозиционером Сталина, лишённым гражданства и высланным из СССР в 1929 году?", ["Н. И. Бухарин", "Г. Е. Зиновьев", "Л. Д. Троцкий", "Л. Б. Каменев"], 2], ["Кто командовал 1-й Конной армией в годы Гражданской войны?", ["М. Н. Тухачевский", "С. М. Будённый", "А. И. Деникин", "П. Н. Врангель"], 1], ["Кто являлся Верховным правителем России в 1918–1920 гг.?", ["А. В. Колчак", "А. И. Деникин", "П. Н. Врангель", "Н. Н. Юденич"], 0], ["Кто руководил советской делегацией при подписании Рапалльского договора с Германией в 1922 году?", ["В. И. Ленин", "Г. В. Чичерин", "М. М. Литвинов", "Л. Б. Красин"], 1], ["Кто был наркомом иностранных дел СССР накануне войны (до 1939 г.)?", ["В. М. Молотов", "М. М. Литвинов", "Г. В. Чичерин", "А. А. Громыко"], 1], ["В каком году произошла Первая русская революция?", ["1904–1905", "1905–1907", "1907–1910", "1914–1918"], 1], ["В каком году Россия подписала Портсмутский мир с Японией?", ["1904", "1905", "1906", "1907"], 1], ["Когда была принята первая Конституция СССР?", ["1922", "1923", "1924", "1925"], 2], ["Когда СССР был принят в Лигу Наций?", ["1928", "1933", "1934", "1939"], 2], ["Когда началась Советско-финляндская война?", ["1937", "1938", "1939", "1940"], 2], ["Когда был подписан советско-германский договор «О дружбе и границах»?", ["1938", "1939", "1940", "1941"], 1], ["В каком году произошёл конфликт у озера Хасан?", ["1936", "1937", "1938", "1939"], 2], ["В каком году была введена новая экономическая политика (НЭП)?", ["1918", "1920", "1921", "1924"], 2], ["Как называлась политика военного коммунизма, включавшая продразвёрстку?", ["НЭП", "«Военный коммунизм»", "Коллективизация", "Индустриализация"], 1], ["Что такое «продналог»?", ["Форма продразвёрстки в годы Гражданской войны", "Замена продразвёрстки твёрдым налогом в рамках НЭПа", "Налог на крестьян в годы коллективизации", "Поставка зерна государству по фиксированным ценам"], 1], ["Как называется объединение мелких единоличных крестьянских хозяйств в крупные коллективные хозяйства?", ["Национализация", "Коллективизация", "Индустриализация", "Кооперация"], 1], ["Что такое «культ личности»?", ["Политика поддержки деятелей культуры", "Возвеличивание одного политического лидера, наделение его сверхъестественными качествами", "Система государственного управления при монархии", "Форма правления в СССР по Конституции 1936 года"], 1], ["Что означал термин «стахановское движение»?", ["Массовое социалистическое соревнование за повышение производительности труда в 1930-е гг.", "Движение за коллективизацию сельского хозяйства", "Кампания по раскулачиванию", "Движение за культурную революцию"], 0], ["Что такое «ГУЛАГ»?", ["Главное управление лагерей НКВД СССР", "Государственное учреждение по ликвидации неграмотности", "Орган управления промышленностью", "Военный трибунал"], 0], ["Какой термин обозначает период массовых политических репрессий 1937–1938 гг.?", ["«Красный террор»", "«Ежовщина»", "«Большая чистка»", "Верны Б и В"], 3], ["Что такое «автономизация» в контексте образования СССР (проект Сталина)?", ["Вхождение всех республик в РСФСР на правах автономий", "Создание конфедерации независимых государств", "Полное отделение республик друг от друга", "Создание федерации с равноправием республик"], 0], ["Что такое «интервенция»?", ["Эскалация конфликта", "Военное вмешательство иностранных государств во внутренние дела другого государства", "Аннексия территории", "Экспроприация собственности"], 1], ["Кто был автором Манифеста 17 октября 1905 года?", ["Николай II", "С. Ю. Витте", "П. Д. Святополк-Мирский", "П. А. Столыпин"], 1], ["Кто был лидером партии кадетов?", ["В. М. Чернов", "А. И. Гучков", "П. Н. Милюков", "Ю. О. Мартов"], 2], ["Кто произнёс фразу: «Им нужны великие потрясения, нам нужна великая Россия»?", ["Николай II", "П. А. Столыпин", "П. Н. Милюков", "С. Ю. Витте"], 1], ["Кто был председателем III и IV Государственных дум?", ["П. Н. Милюков", "М. В. Родзянко", "П. Б. Струве", "В. М. Чернов"], 1], ["Кто являлся лидером большевиков?", ["В. М. Чернов", "Г. В. Плеханов", "В. И. Ленин", "Ю. О. Мартов"], 2], ["Кто был лидером меньшевиков?", ["В. И. Ленин", "Ю. О. Мартов", "Г. В. Плеханов", "А. И. Гучков"], 1], ["Кто руководил партизанским соединением в годы Великой Отечественной войны, автор книги «От Путивля до Карпат»?", ["С. А. Ковпак", "В. И. Чуйков", "К. К. Рокоссовский", "Г. К. Жуков"], 0], ["Кто подписал советско-германский пакт о ненападении 23 августа 1939 года?", ["И. В. Сталин", "В. М. Молотов", "М. М. Литвинов", "Г. К. Жуков"], 1], ["Годы правления Николая II:", ["1881–1894", "1894–1917", "1896–1905", "1896–1918"], 1], ["Когда произошло «Кровавое воскресенье»?", ["9 января 1905 г.", "17 октября 1905 г.", "1 декабря 1905 г.", "3 июня 1907 г."], 0], ["Когда была провозглашена Декларация об образовании СССР?", ["1917", "1920", "1922", "1924"], 2], ["Когда произошёл «Брусиловский прорыв»?", ["1914", "1915", "1916", "1917"], 2], ["Когда началась Первая мировая война?", ["1905", "1914", "1917", "1918"], 1], ["Когда была введена всеобщая трудовая повинность в рамках «военного коммунизма»?", ["1917", "1918", "1920", "1921"], 1], ["Когда произошёл конфликт на реке Халхин-Гол?", ["1936", "1937", "1938", "1939"], 3], ["Когда был заключён Рапалльский договор с Германией?", ["1918", "1920", "1922", "1924"], 2], ["Что такое «отруб» в рамках Столыпинской реформы?", ["Личное владение усадьбы в деревне", "Личное владение усадьбы с переселением из деревни", "Земельные владения в общинном пользовании", "Личные владения на свободных казённых землях"], 0], ["Что такое «двоевластие»?", ["Система управления при монархии", "Одновременное существование Временного правительства и Советов в 1917 г.", "Форма правления в СССР по Конституции 1936 года", "Разделение властей на законодательную и исполнительную"], 1], ["Что такое «продразвёрстка»?", ["Обязательная сдача крестьянами «излишков» продукции государству по твёрдым ценам", "Замена продразвёрстки налогом", "Свободная торговля зерном", "Налог на крестьян в годы коллективизации"], 0], ["Что такое «модернизация»?", ["Переход к индустриальному обществу", "Промышленный переворот", "Форма правления", "Тип цивилизации"], 0], ["Что такое «сталинские пятилетки»?", ["Периоды планового развития народного хозяйства СССР", "Периоды коллективизации", "Периоды репрессий", "Периоды культурной революции"], 0], ["Что такое «раскулачивание»?", ["Изъятие имущества у зажиточных крестьян в ходе коллективизации", "Переселение крестьян на свободные земли", "Объединение крестьян в колхозы", "Налог на зажиточных крестьян"], 0], ["Что такое «репрессии»?", ["Карательные меры, наказания со стороны государства", "Политические реформы", "Экономические преобразования", "Культурные преобразования"], 0], ["Что такое «федерация»?", ["Форма государственного устройства, при которой части государства обладают определённой самостоятельностью", "Форма правления при монархии", "Политический режим", "Экономическая система"], 0], ["Что такое «тоталитаризм»?", ["Политический режим, при котором государство полностью контролирует все сферы жизни общества", "Демократический режим", "Монархическая форма правления", "Экономическая система"], 0]];
+
+let testQ = [];   // перемешанные вопросы с перемешанными вариантами
+let answers = []; // выбранный индекс варианта на каждый вопрос
+let cur = 0;
+
+const LETTERS = ['А','Б','В','Г'];
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startTest(){
+  testQ = shuffle(QUESTIONS).map(q => {
+    const order = shuffle([0,1,2,3]);
+    return {
+      q: q[0],
+      opts: order.map(i => q[1][i]),
+      correct: order.indexOf(q[2])
+    };
+  });
+  answers = new Array(testQ.length).fill(null);
+  cur = 0;
+  show('test');
+  renderQ();
+}
+
+function show(id){
+  ['menu','test','result','answers'].forEach(s => document.getElementById(s).classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  window.scrollTo({top:0});
+}
+
+function renderQ(){
+  const item = testQ[cur];
+  document.getElementById('qnum').textContent = `Вопрос ${cur+1} из ${testQ.length}`;
+  document.getElementById('barfill').style.width = ((cur) / testQ.length * 100) + '%';
+  document.getElementById('qtext').textContent = item.q;
+  const box = document.getElementById('opts');
+  box.innerHTML = '';
+  item.opts.forEach((opt, i) => {
+    const b = document.createElement('button');
+    b.className = 'opt' + (answers[cur] === i ? ' selected' : '');
+    b.innerHTML = `<b>${LETTERS[i]}.</b> ${opt}`;
+    b.onclick = () => { answers[cur] = i; renderQ(); };
+    box.appendChild(b);
+  });
+  document.getElementById('backBtn').style.visibility = cur === 0 ? 'hidden' : 'visible';
+  const nb = document.getElementById('nextBtn');
+  if(cur === testQ.length - 1){
+    nb.textContent = 'Завершить тест ✔';
+    nb.className = 'btn green';
+    nb.onclick = finishTest;
+  } else {
+    nb.textContent = 'Далее →';
+    nb.className = 'btn';
+    nb.onclick = nextQ;
+  }
+}
+
+function nextQ(){ if(cur < testQ.length - 1){ cur++; renderQ(); } }
+function prevQ(){ if(cur > 0){ cur--; renderQ(); } }
+
+function finishTest(){
+  document.getElementById('barfill').style.width = '100%';
+  let ok = 0;
+  testQ.forEach((q, i) => { if(answers[i] === q.correct) ok++; });
+  const total = testQ.length;
+  const pct = Math.round(ok / total * 100);
+  document.getElementById('scoreNum').textContent = `${ok} / ${total}`;
+  document.getElementById('scorePct').textContent = `Это ${pct}% правильных ответов`;
+  let grade, gcolor;
+  if(pct >= 80){ grade = 'Отлично — «5» 🎉'; gcolor = 'var(--green)'; }
+  else if(pct >= 60){ grade = 'Хорошо — «4» 👍'; gcolor = 'var(--green)'; }
+  else if(pct >= 40){ grade = 'Удовлетворительно — «3»'; gcolor = 'var(--yellow)'; }
+  else { grade = 'Неудовлетворительно — «2» 😔'; gcolor = 'var(--red)'; }
+  const gEl = document.getElementById('grade');
+  gEl.innerHTML = `<span class="badge" style="color:${gcolor};border:1px solid ${gcolor};background:transparent;font-size:1.1rem">${grade}</span>`;
+  document.getElementById('okCount').textContent = `✅ Правильно: ${ok}`;
+  document.getElementById('noCount').textContent = `❌ Ошибок: ${total - ok}`;
+  show('result');
+  renderReview('all');
+}
+
+function renderReview(filter){
+  const list = document.getElementById('reviewList');
+  list.innerHTML = '';
+  testQ.forEach((q, i) => {
+    const isOk = answers[i] === q.correct;
+    if(filter === 'ok' && !isOk) return;
+    if(filter === 'no' && isOk) return;
+    const div = document.createElement('div');
+    div.className = 'res-item ' + (isOk ? 'ok' : 'no');
+    const your = answers[i] === null ? '<span class="no">не ответил(а)</span>' : `<span class="${isOk?'ok':'no'}">${LETTERS[answers[i]]}. ${q.opts[answers[i]]}</span>`;
+    div.innerHTML = `
+      <div class="res-q">${i+1}. ${q.q}</div>
+      <div class="res-line">Твой ответ: <b>${your}</b></div>
+      ${isOk ? '' : `<div class="res-line">Правильный ответ: <span class="ok">${LETTERS[q.correct]}. ${q.opts[q.correct]}</span></div>`}`;
+    list.appendChild(div);
+  });
+  if(!list.children.length){
+    list.innerHTML = '<p class="small">Здесь пока пусто 🙂</p>';
+  }
+}
+
+function showAnswers(){
+  const box = document.getElementById('answersList');
+  box.innerHTML = '';
+  QUESTIONS.forEach((q, i) => {
+    const v = i < 25 ? 'Вариант 1' : 'Вариант 2';
+    const n = (i % 25) + 1;
+    const div = document.createElement('div');
+    div.className = 'ansblock';
+    div.innerHTML = `<div><span class="tag">${v}</span><span class="tag">Вопрос ${n}</span></div>
+                     <div class="q">${q[0]}</div>
+                     <div class="a">✔ ${LETTERS[q[2]]}. ${q[1][q[2]]}</div>`;
+    box.appendChild(div);
+  });
+  show('answers');
+}
+
+function goMenu(){ show('menu'); }
+</script>
+</body>
+</html>
